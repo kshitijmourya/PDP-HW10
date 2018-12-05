@@ -1,5 +1,16 @@
 package model;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileFilter;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -8,6 +19,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
@@ -20,13 +32,15 @@ import java.util.stream.Collectors;
  * stores the information of these transactions in a hashmap to be called upon when needed.
  */
 public class Account implements UserAccount {
-  Map<String, LinkedList<Stock>> portfolios;
+  private Map<String, List<Stock>> portfolios;
+  private Map<String, List<String>> strategies;
 
   /**
    * Constructor for user account. No parameters should be given.
    */
   public Account() {
-    this.portfolios = new HashMap<String, LinkedList<Stock>>();
+    this.portfolios = new HashMap<String, List<Stock>>();
+    this.strategies = new HashMap<String, List<String>>();
   }
 
   /**
@@ -45,7 +59,7 @@ public class Account implements UserAccount {
     if (portfolioName.equals("")) {
       throw new IllegalArgumentException("Please name the portfolio");
     }
-    this.portfolios.put(portfolioName, new LinkedList<Stock>());
+    this.portfolios.put(portfolioName, new ArrayList<Stock>());
   }
 
   /**
@@ -71,7 +85,8 @@ public class Account implements UserAccount {
   /**
    * Buys a particular stock and adds it to the specified portfolio at the users command. If the
    * stock does not already exist in the portfolio, it will add it. If the stock does exist in the
-   * portfolio, then it will add the shares to the stock within the portfolio.
+   * portfolio, then it will add the shares to the stock within the portfolio. Automatically saves
+   * the state of the account after buying the stock.
    *
    * @param commision amount charges in Dollard and Cents to make the transaction.
    * @param ticker    identifier for company to buy stock from. Can be company name or ticker
@@ -85,32 +100,28 @@ public class Account implements UserAccount {
   @Override
   public void buyStock(double commision, String ticker, String date, String type,
                        int shares, String portfolio) {
-    boolean exists = false;
+    this.saveAccount();
 
-    Stock stock_bought = new Stock(commision, ticker, date, type, shares);
-    Stock stock_owned;
+    boolean exists = false;
 
     for (Stock s : this.portfolios.get(portfolio)) {
       if (s.getTicker().equals(ticker)) {
-        stock_owned = s;
-
-        int new_shares = stock_bought.getShares() + stock_owned.getShares();
-        double running_cost = s.getCost() + stock_bought.getCost();
-        s.setShares(new_shares);
-        s.setCost(running_cost);
+        s.sharesTransaction(commision, date, type, shares);
         exists = true;
       }
     }
 
     if (!exists) {
-      this.portfolios.get(portfolio).add(stock_bought);
+      this.portfolios.get(portfolio).add(new Stock(commision, ticker, date, type, shares));
     }
+
   }
 
   /**
    * Buys a particular stock and adds it to the specified portfolio at the users command. If the
    * stock does not already exist in the portfolio, it will add it. If the stock does exist in the
-   * portfolio, then it will add the shares to the stock within the portfolio.
+   * portfolio, then it will add the shares to the stock within the portfolio. Automatically saves
+   *    * the state of the account after buying the stock.
    *
    * @param commision  amount charges in Dollard and Cents to make the transaction.
    * @param ticker     identifier for company to buy stock from. Can be company name or ticker
@@ -121,55 +132,22 @@ public class Account implements UserAccount {
    * @param investment number of shares the user wants to buy.
    * @param portfolio  to add the acquired stock to.
    */
-  void buyMonetaryStock(double commision, String ticker, String date, String type,
+  private void buyMonetaryStock(double commision, String ticker, String date, String type,
                         double investment, String portfolio) {
-    Stock stock_bought = new Stock(commision, ticker, date, type, investment);
-    Stock stock_owned;
+    this.saveAccount();
 
-    for (Stock s : this.portfolios.get(portfolio)) {
-      if (s.getTicker().equals(ticker)) {
-        stock_owned = s;
-
-        int new_shares = stock_bought.getShares() + stock_owned.getShares();
-        double running_cost = s.getCost() + stock_bought.getCost();
-        s.setShares(new_shares);
-        s.setCost(running_cost);
-      }
-    }
-  }
-
-  /**
-   * A future feature for the next version update. This method is incomplete and not ready for use
-   * by the user. Sells a particular stock from a specified portfolio at the users command. The
-   * stock MUST exist in the portfolio to be able to sell it. The user can only sell, at maximum,
-   * the total number of shares owned.
-   *
-   * @param ticker    code for the company to sell the stock.
-   * @param shares    number of shares to sell.
-   * @param portfolio portfolio ehich contains the stock the user wants to sell.
-   */
-  @Override
-  public void sellStock(String ticker, int shares, String portfolio) {
     boolean exists = false;
 
     for (Stock s : this.portfolios.get(portfolio)) {
       if (s.getTicker().equals(ticker)) {
-        int remaining_shares = s.getShares() - shares;
-
-        if (remaining_shares > 0) {
-          s.setShares(remaining_shares);
-        } else if (remaining_shares < 0) {
-          System.out.println("Not enough shares owned to make this sale.");
-        } else {
-          this.portfolios.get(portfolio).remove(s);
-        }
+        s.monetaryTransaction(commision, date, type, investment);
 
         exists = true;
       }
     }
 
     if (!exists) {
-      System.out.println("This stock does not exist in this portfolio.");
+      this.portfolios.get(portfolio).add(new Stock(commision, ticker, date, type, investment));
     }
   }
 
@@ -196,19 +174,21 @@ public class Account implements UserAccount {
       weights_total += i;
       weights_list.add(i);
     }
+    List<Stock> clone_portfolio = new ArrayList();
+    clone_portfolio.addAll(this.portfolios.get(portfolio));
 
-    ListIterator<Stock> stock_iterator = this.portfolios.get(portfolio).listIterator(0);
+    ListIterator<Stock> stock_iterator = clone_portfolio.listIterator();
     ListIterator<Integer> weight_iterator = weights_list.listIterator(0);
 
     while (stock_iterator.hasNext() && weight_iterator.hasNext()) {
-      double proportion = weight_iterator.next().doubleValue() / weights_total;
-      Thread.sleep(10000);
-      buyMonetaryStock(commision, stock_iterator.next().getTicker(), date, "open",
+      Integer w = weight_iterator.next();
+      Stock s = stock_iterator.next();
+      double proportion = w.doubleValue() / weights_total;
+      buyMonetaryStock(commision, s.getTicker(), date, "open",
               investment * proportion, portfolio);
 
-
-      buyMonetaryStock(commision, stock_iterator.next().getTicker(), date, "open",
-              investment * proportion, portfolio);
+      proportion = w.doubleValue() / weights_total;
+      buyMonetaryStock(commision, s.getTicker(), date, "open", investment * proportion, portfolio);
     }
   }
 
@@ -230,19 +210,22 @@ public class Account implements UserAccount {
   public void periodicInvestment(double commision, double investment, String portfolio,
                                  String start, String end, int interval, int... weights)
           throws InterruptedException, ParseException {
-    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
+    saveStrategy(commision, investment, portfolio, start, end, interval, weights);
+
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     LocalDate start_date = LocalDate.parse(start);
     LocalDate end_date = LocalDate.parse(end);
-
+    LocalDate buy_date = start_date;
     long days = ChronoUnit.DAYS.between(start_date, end_date);
     int number_of_investments = Math.toIntExact(days / interval);
 
     for (int i = 0; i < number_of_investments; i++) {
-      LocalDate date = start_date.plusDays(interval);
-      buyMultipleStockInPortfolio(commision, investment, portfolio, date.format(formatter),
+      buyMultipleStockInPortfolio(commision, investment, portfolio, buy_date.format(formatter),
               weights);
+      buy_date = buy_date.plusDays(interval);
+
     }
   }
 
@@ -271,7 +254,7 @@ public class Account implements UserAccount {
   }
 
   /**
-   * Displays the total current Portfolio names.
+   * Displays the total Portfolio names in the account currently.
    *
    * @return String paragraph of user account information.
    */
@@ -311,7 +294,7 @@ public class Account implements UserAccount {
    */
   @Override
   public String viewStockLogsInPortfolio(String portfolio) {
-    LinkedList<Stock> stocks = this.portfolios.get(portfolio);
+    List<Stock> stocks = this.portfolios.get(portfolio);
 
     return stocks.stream().map(a -> a.logString()).collect(Collectors.joining());
   }
@@ -322,9 +305,10 @@ public class Account implements UserAccount {
    *
    * @param start date of profit calculations.
    * @param end   date of profit calculations.
+   * @return cumulative profit of the account from one particular date to another..
    */
   @Override
-  public String getAccountProfit(String start, String end) throws InterruptedException {
+  public String getAccountProfit(String start, String end) throws InterruptedException, ParseException {
     if (this.portfolios.isEmpty()) {
       return "User has no active portfolios.";
     } else {
@@ -350,7 +334,7 @@ public class Account implements UserAccount {
    */
   @Override
   public String getPortfolioProfit(String portfolio, String start, String end)
-          throws InterruptedException {
+          throws InterruptedException, ParseException {
     SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
     Date today = new Date();
 
@@ -362,24 +346,23 @@ public class Account implements UserAccount {
     for (Stock s : this.portfolios.get(portfolio)) {
       APIData stock_data = new APIData();
       String code = stock_data.searchCode(s.getTicker());
-      double end_price = stock_data.getPrices(code, end, "open");
+      double end_price = 0;
+      end_price = stock_data.getPrices(code, end, "open");
+      double value_difference = 0.00;
 
       for (String date : s.getLogs().keySet()) {
         portfolio_information += "\n\t" + s.getTicker() + "\n";
-        try {
+
           if (formatter.parse(date).after(formatter.parse(start))
                   && formatter.parse(date).before(formatter.parse(end))) {
 
-            double value_difference = end_price * Integer.parseInt(s.getLogs().get(date).get(1))
+            value_difference += end_price * Integer.parseInt(s.getLogs().get(date).get(1))
                     - Double.parseDouble(s.getLogs().get(date).get(0));
 
-            total_value += value_difference;
             portfolio_information += "\t\t" + "Current Profit: " + value_difference + "\n";
           }
-        } catch (ParseException e) {
-          e.printStackTrace();
-        }
       }
+      total_value += value_difference;
     }
     portfolio_information += "Total Portfolio Earnings: " + total_value + "\n\n";
     return portfolio_information;
@@ -394,5 +377,169 @@ public class Account implements UserAccount {
   @Override
   public int getStockNumberInPortfolio(String portfolio) {
     return this.portfolios.get(portfolio).size();
+  }
+
+  /**
+   * Saves the current state of the account portfolios, and all stocks within it.
+   */
+  private void saveAccount() {
+    Iterator portfolio_iterator = this.portfolios.keySet().iterator();
+
+    while (portfolio_iterator.hasNext()) {
+      String portfolio_name = String.valueOf(portfolio_iterator.next());
+
+      for (Stock s : this.portfolios.get(portfolio_name)) {
+        Path save_path = Paths.get("portfolios/" + portfolio_name);
+        if (Files.exists(save_path)) {
+          s.saveStocks(portfolio_name);
+        } else {
+          try {
+            Files.createDirectory(save_path);
+            s.saveStocks(portfolio_name);
+          } catch (IOException e) {
+            e.printStackTrace();
+          }
+        }
+      }
+    }
+  }
+
+  /**
+   * Clears the current account information. Loads info from the most recently saved account.
+   */
+  public void loadAccount() {
+    this.portfolios.clear();
+    this.strategies.clear();
+
+    File portfolios = new File("portfolios");
+
+      File[] portfolio_dirs = portfolios.listFiles();
+      for (File f : portfolio_dirs) {
+        if (f.isDirectory()) {
+          getSaveFile(f.toString());
+        }
+      }
+  }
+
+  /**
+   * Saves all stocks and information in current specified portfolio.
+   *
+   * @param portfolio to be saved.
+   * @throws IllegalArgumentException
+   */
+  private void getSaveFile(String portfolio)
+          throws IllegalArgumentException {
+
+    String tickr = "";
+    BufferedReader in = null;
+    StringBuilder output = new StringBuilder();
+    List<Stock> stocks = new ArrayList();
+
+    File portfolios = new File(portfolio);
+    File[] portfolio_files = portfolios.listFiles();
+    for (File f : portfolio_files) {
+      if (f.isFile()) {
+        tickr = f.toString().split("\\W")[2];
+
+      try {
+        in = new BufferedReader(new FileReader(f.toString()));
+        Stock s = new Stock(tickr);
+        String b;
+
+        while ((b = in.readLine()) != null) {
+          String[] line_array = b.split(",");
+
+          if (!line_array[0].equals("transaction date")) {
+            s.updateLog(line_array[0], Double.parseDouble(line_array[3]),
+                    Double.parseDouble(line_array[4]), Integer.parseInt(line_array[2]));
+          }
+        }
+
+        stocks.add(s);
+
+      } catch (FileNotFoundException e) {
+
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+      }
+    }
+    this.portfolios.put(portfolio, stocks);
+  }
+
+  /**
+   * Save an investment strategy to file for later use.
+   *
+   * @param commision  amount charges in Dollard and Cents to make the transaction.
+   * @param investment amount in Dollars and Cents towards the portfolio.
+   * @param portfolio  portfolio which contains the stock the user wants to sell.
+   * @param start      date of periodic investment.
+   * @param end        date of periodic investment.
+   * @param interval   interval of periodic investment.
+   * @param weights    of investment into each stock in the portfolio.
+   */
+  private void saveStrategy(double commision, double investment, String portfolio,
+                    String start, String end, int interval, int... weights) {
+    String save_path = "strategies/" + portfolio + ".csv";
+
+    String strategy = "commission,investment amount,portfolio,start date,end date,interval,weights\n";
+
+    strategy += commision + "," + investment + "," + portfolio + ","
+            + start + "," + end + "," + interval
+            + ",";
+
+    for (int w : weights) {
+      strategy += w + "|";
+    }
+
+    BufferedWriter write_strategy = null;
+
+      try {
+        write_strategy = new BufferedWriter(new FileWriter(save_path));
+        write_strategy.write(strategy);
+        write_strategy.close();
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+  }
+
+  /**
+   * Retrieve saved investment strategy from file.
+   *
+   * @param portfolio strategy to be loaded.
+   */
+  void getSaveStrategy(String portfolio) {
+
+    BufferedReader in = null;
+    StringBuilder output = new StringBuilder();
+    List<String> strategy = new ArrayList();
+
+    File portfolios = new File(portfolio);
+    File[] strategy_files = portfolios.listFiles();
+
+    for (File f : strategy_files) {
+      if (f.toString().split("\\.")[0].equals(portfolio)) {
+
+        try {
+          in = new BufferedReader(new FileReader(f.toString()));
+          String b;
+
+          while ((b = in.readLine()) != null) {
+            String[] line_array = b.split(",");
+
+            if (!line_array[0].equals("commission")) {
+              for (String s : line_array) {
+                strategy.add(s);
+              }
+            }
+          }
+        } catch (FileNotFoundException e) {
+
+        } catch (IOException e) {
+          e.printStackTrace();
+        }
+      }
+    }
+    this.strategies.put(portfolio, strategy);
   }
 }
