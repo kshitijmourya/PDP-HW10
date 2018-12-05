@@ -123,7 +123,6 @@ public class UserView implements IUserView {
           shares = Integer.parseInt(s1);
         } catch (NumberFormatException e) {
           System.out.println("Please Enter Number");
-
         }
         System.out.println("Enter Portfolio's name");
         String portfolioName = input(sc);
