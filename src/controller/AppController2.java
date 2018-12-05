@@ -4,12 +4,14 @@ import java.text.ParseException;
 
 
 import model.Account;
-import view.UserView;
+import view.IUserView;
+
 
 public class AppController2 implements IAppController {
 
   private Account model;
-  private UserView view;
+  private IUserView view;
+
 
   /**
    * constructor for controller.
@@ -17,7 +19,7 @@ public class AppController2 implements IAppController {
    * @param model model object.
    * @param view  view object.
    */
-  public AppController2(Account model, UserView view) {
+  public AppController2(Account model, IUserView view) {
 
     this.model = model;
     this.view = view;

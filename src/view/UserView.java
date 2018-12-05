@@ -23,6 +23,7 @@ public class UserView implements IUserView {
    *
    * @param st string.
    */
+
   public void display(String st) {
     System.out.println(st);
   }
