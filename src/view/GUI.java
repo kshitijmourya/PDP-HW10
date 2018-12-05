@@ -957,6 +957,9 @@ public class GUI extends javax.swing.JFrame implements IUserView {
   private void buttonsubmitPFActionPerformed(java.awt.event.ActionEvent evt) {
     // TODO add your handling code here:
 
+    String s = TextFieldPName.getText();
+    controllerObj.createPortfolio(s);
+
     jPanelAllScreens.removeAll();
     jPanelAllScreens.repaint();
     jPanelAllScreens.revalidate();
@@ -977,6 +980,8 @@ public class GUI extends javax.swing.JFrame implements IUserView {
 
   private void exitButtonActionPerformed(java.awt.event.ActionEvent evt) {
     // TODO add your handling code here:
+
+    System.exit(0);
   }
 
   private void jPanel1MouseEntered(java.awt.event.MouseEvent evt) {
