@@ -45,20 +45,6 @@ public interface UserAccount {
                 int shares, String portfolio);
 
   /**
-   * A future feature for the next version update. This method is incomplete and not ready for use
-   * by the user.
-   * <p></p>
-   * Sells a particular stock from a specified portfolio at the users command. The stock MUST exist
-   * in the portfolio to be able to sell it. The user can only sell, at maximum, the total number of
-   * shares owned.
-   *
-   * @param ticker    code for the company to sell the stock.
-   * @param shares    number of shares to sell.
-   * @param portfolio portfolio which contains the stock the user wants to sell.
-   */
-  void sellStock(String ticker, int shares, String portfolio);
-
-  /**
    * Buys stocks of the specified portfolio in the weights that the user defines. Weights do not
    * have to add up to 100, but they will be proportioned accordingly. If the stock does not already
    * exist in the portfolio, it will add it. If the stock does exist in the portfolio, then it will
@@ -129,7 +115,7 @@ public interface UserAccount {
    * @param start date of profit calculations.
    * @param end   date of profit calculations.
    */
-  String getAccountProfit(String start, String end) throws InterruptedException;
+  String getAccountProfit(String start, String end) throws InterruptedException, ParseException;
 
   /**
    * Displays the total current profit of a specified portfolio.
@@ -139,7 +125,7 @@ public interface UserAccount {
    * @param end       date of profit calculations.
    * @return String paragraph of profit from specified portfolio.
    */
-  String getPortfolioProfit(String portfolio, String start, String end) throws InterruptedException;
+  String getPortfolioProfit(String portfolio, String start, String end) throws InterruptedException, ParseException;
 
   /**
    * Obtains the number of stocks within a given portfolio.
@@ -148,4 +134,9 @@ public interface UserAccount {
    * @return number of stocks in a portfolio.
    */
   int getStockNumberInPortfolio(String portfolio);
+
+  /**
+   * Clears the current account information. Loads info from the most recently saved account.
+   */
+  void loadAccount();
 }
