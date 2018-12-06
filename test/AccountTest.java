@@ -15,17 +15,6 @@ public class AccountTest {
   Account testTrade;
 
   @Test
-  public void trials() {
-    LinkedHashMap<String, List<String>> lh = new LinkedHashMap();
-    List<String> my_stock = new ArrayList();
-    my_stock.add("shares");
-    my_stock.add("cost");
-    my_stock.add("date");
-    my_stock.add("commission");
-    lh.put("date", my_stock);
-  }
-
-  @Test
   public void test1() throws InterruptedException, ParseException {
     testTrade = new Account();
     testTrade.addPortfolio("Technology");
@@ -61,8 +50,8 @@ public class AccountTest {
     assertNotEquals(early_ports, all_ports);
     assertEquals(early_ports, testTrade.viewAccount());
 
-    testTrade.buyMultipleStockInPortfolio(20.00, 2000.00, "Technology",
-            "2018-10-05", 20, 10, 20, 50);
+    testTrade.buyMultipleStockInPortfolio(20.00, 2000.00,
+            "Technology","2018-10-05", 20, 10, 20, 50);
 
     assertEquals("Portfolio: Technology\n" + "\tTicker Symbol: AMZN\n"
             + "\tTotal Shares Owned: 10\n" + "\tTotal Running Cost of Stock: 17610.0\n" + "\n"
