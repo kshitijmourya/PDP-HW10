@@ -342,7 +342,6 @@ public class Account implements UserAccount {
     int total_value = 0;
 
     String portfolio_information = "Portfolio: " + portfolio + "\n";
-
     for (Stock s : this.portfolios.get(portfolio)) {
       APIData stock_data = new APIData();
       String code = stock_data.searchCode(s.getTicker());
