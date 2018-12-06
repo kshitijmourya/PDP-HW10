@@ -37,7 +37,8 @@ public class AccountTest {
                     + "\t\tCurrent Profit: -1810.1000000000004\n" + "\n" + "\tAMD\n"
                     + "\t\tCurrent Profit: -40.0\n" + "\n" + "\tAAPL\n"
                     + "\t\tCurrent Profit: -422.4000000000001\n" + "\n" + "\tMSFT\n"
-                    + "\t\tCurrent Profit: -75.29999999999995\n" + "Total Portfolio Earnings: -2347\n\n",
+                    + "\t\tCurrent Profit: -75.29999999999995\n"
+                    + "Total Portfolio Earnings: -2347\n\n",
             testTrade.getPortfolioProfit("Technology",
                     "2018-11-2", "2018-11-27"));
 
