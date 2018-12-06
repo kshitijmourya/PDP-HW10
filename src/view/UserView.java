@@ -50,6 +50,7 @@ public class UserView implements IUserView {
   public void run() {
     display("Welcome User to the Application\nHow to Invest for Dummies\n");
     String menu = "Please Enter the Following Options\n" +
+            "Enter 0 to Load files\n" +
             "Enter 1 to create a portfolio\n" +
             "Enter 2 to Buy Stocks\n" +
             "Enter 3 to Examine a portfolio\n" +
@@ -61,6 +62,10 @@ public class UserView implements IUserView {
       String command = input(sc);
 
       switch (command) {
+        case "0":
+          controllerObj.load();
+          break;
+
         case "1":
           System.out.println("Enter Portfolio name");
           String s = input(sc);
