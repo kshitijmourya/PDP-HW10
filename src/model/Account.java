@@ -415,7 +415,11 @@ public class Account implements UserAccount {
     File[] portfolio_dirs = portfolios.listFiles();
     for (File f : portfolio_dirs) {
       if (f.isDirectory()) {
-        getSaveFile(f.toString());
+        try {
+          getSaveFile(f.toString());
+        } catch (FileNotFoundException e) {
+          e.printStackTrace();
+        }
       }
     }
   }
@@ -426,7 +430,7 @@ public class Account implements UserAccount {
    * @param portfolio to be saved.
    */
   private void getSaveFile(String portfolio)
-          throws IllegalArgumentException {
+          throws IllegalArgumentException, FileNotFoundException {
 
     String tickr = "";
     BufferedReader in = null;
@@ -456,7 +460,7 @@ public class Account implements UserAccount {
           stocks.add(s);
 
         } catch (FileNotFoundException e) {
-
+          throw new FileNotFoundException("No file.");
         } catch (IOException e) {
           e.printStackTrace();
         }
@@ -534,7 +538,7 @@ public class Account implements UserAccount {
             }
           }
         } catch (FileNotFoundException e) {
-
+          e.printStackTrace();
         } catch (IOException e) {
           e.printStackTrace();
         }
