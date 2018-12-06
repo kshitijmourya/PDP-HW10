@@ -18,7 +18,6 @@ import java.util.Map;
  */
 class APIData {
   private Map<String, String> nameToCode;
-  private Map<String, Double> prices;
   private String apiKey2 = "SSO4MPHRUSM6YMEB";
   private String apiKey = "UISBJFEXNUUOZ3II";
   private String apiKey3 = "3KC45X2HPAQ6X05J";
@@ -30,7 +29,6 @@ class APIData {
    */
   APIData() {
     this.nameToCode = new HashMap<>();
-    this.prices = new HashMap<>();
   }
 
   /**
