@@ -3,7 +3,6 @@ package model;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileFilter;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -20,7 +19,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
@@ -120,7 +118,7 @@ public class Account implements UserAccount {
   /**
    * Buys a particular stock and adds it to the specified portfolio at the users command. If the
    * stock does not already exist in the portfolio, it will add it. If the stock does exist in the
-   * portfolio, then it will add the shares to the stock within the portfolio. Automatically saves *
+   * portfolio, then it will add the shares to the stock within the portfolio. Automatically saves
    * the state of the account after buying the stock.
    *
    * @param commision  amount charges in Dollard and Cents to make the transaction.
@@ -188,7 +186,8 @@ public class Account implements UserAccount {
               investment * proportion, portfolio);
 
       proportion = w.doubleValue() / weights_total;
-      buyMonetaryStock(commision, s.getTicker(), date, "open", investment * proportion, portfolio);
+      buyMonetaryStock(commision, s.getTicker(), date,
+              "open", investment * proportion, portfolio);
     }
   }
 
@@ -308,7 +307,8 @@ public class Account implements UserAccount {
    * @return cumulative profit of the account from one particular date to another..
    */
   @Override
-  public String getAccountProfit(String start, String end) throws InterruptedException, ParseException {
+  public String getAccountProfit(String start, String end)
+          throws InterruptedException, ParseException {
     if (this.portfolios.isEmpty()) {
       return "User has no active portfolios.";
     } else {
@@ -415,7 +415,11 @@ public class Account implements UserAccount {
     File[] portfolio_dirs = portfolios.listFiles();
     for (File f : portfolio_dirs) {
       if (f.isDirectory()) {
-        getSaveFile(f.toString());
+        try {
+          getSaveFile(f.toString());
+        } catch (FileNotFoundException e) {
+          e.printStackTrace();
+        }
       }
     }
   }
@@ -426,7 +430,7 @@ public class Account implements UserAccount {
    * @param portfolio to be saved.
    */
   private void getSaveFile(String portfolio)
-          throws IllegalArgumentException {
+          throws IllegalArgumentException, FileNotFoundException {
 
     String tickr = "";
     BufferedReader in = null;
@@ -456,13 +460,14 @@ public class Account implements UserAccount {
           stocks.add(s);
 
         } catch (FileNotFoundException e) {
-
+          throw new FileNotFoundException("No file.");
         } catch (IOException e) {
           e.printStackTrace();
         }
       }
     }
-    this.portfolios.put(portfolio, stocks);
+    System.out.println(portfolio.split("\\W")[1]);
+    this.portfolios.put(portfolio.split("\\W")[1], stocks);
   }
 
   /**
@@ -480,7 +485,8 @@ public class Account implements UserAccount {
                             String start, String end, int interval, int... weights) {
     String save_path = "strategies/" + portfolio + ".csv";
 
-    String strategy = "commission,investment amount,portfolio,start date,end date,interval,weights\n";
+    String strategy =
+            "commission,investment amount,portfolio,start date,end date,interval,weights\n";
 
     strategy += commision + "," + investment + "," + portfolio + ","
             + start + "," + end + "," + interval
@@ -532,7 +538,7 @@ public class Account implements UserAccount {
             }
           }
         } catch (FileNotFoundException e) {
-
+          e.printStackTrace();
         } catch (IOException e) {
           e.printStackTrace();
         }

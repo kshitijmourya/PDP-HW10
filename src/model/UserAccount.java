@@ -125,7 +125,8 @@ public interface UserAccount {
    * @param end       date of profit calculations.
    * @return String paragraph of profit from specified portfolio.
    */
-  String getPortfolioProfit(String portfolio, String start, String end) throws InterruptedException, ParseException;
+  String getPortfolioProfit(String portfolio, String start, String end)
+          throws InterruptedException, ParseException;
 
   /**
    * Obtains the number of stocks within a given portfolio.

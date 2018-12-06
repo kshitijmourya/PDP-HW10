@@ -1,19 +1,15 @@
 package model;
 
 import java.io.BufferedWriter;
-import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.SortedMap;
-import java.util.TreeMap;
 
 /**
  * This class represents a single stock interest, to be stores in the users portfolio.
@@ -61,10 +57,8 @@ class Stock {
   }
 
   /**
-   * Bare bones constructor for stock, that does not make any initial investments but
-   * instead just instantiates with the ticker identifier.
-   *
-   * @param companyName
+   * Bare bones constructor for stock, that does not make any initial investments but instead just
+   * instantiates with the ticker identifier.
    */
   Stock(String companyName) {
     this.ticker = companyName;
@@ -87,7 +81,7 @@ class Stock {
   int getShares() {
     Iterator log_iterator = this.log.keySet().iterator();
     int shares = 0;
-    while (log_iterator.hasNext()){
+    while (log_iterator.hasNext()) {
       shares += Integer.parseInt(this.log.get(log_iterator.next()).get(1));
     }
     return shares;
@@ -101,7 +95,7 @@ class Stock {
   double getCost() {
     Iterator log_iterator = this.log.keySet().iterator();
     double cost = 0;
-    while (log_iterator.hasNext()){
+    while (log_iterator.hasNext()) {
       cost += Double.parseDouble(this.log.get(log_iterator.next()).get(0));
     }
     return cost;
@@ -125,10 +119,10 @@ class Stock {
   /**
    * Initiates transaction for the stock with specified shares.
    *
-   * @param commision   amount in dollars to pay for broker services.
-   * @param date        that the stock is going to be bought.
-   * @param type        of price the shares will be bought at (i.e. open, close, high, low)
-   * @param shares      to be boughtfor the company.
+   * @param commision amount in dollars to pay for broker services.
+   * @param date      that the stock is going to be bought.
+   * @param type      of price the shares will be bought at (i.e. open, close, high, low)
+   * @param shares    to be boughtfor the company.
    */
   void sharesTransaction(double commision, String date, String type, int shares) {
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
@@ -155,10 +149,10 @@ class Stock {
   /**
    * Initiates transaction for the stock with specified investment amount in dollars.
    *
-   * @param commision   amount in dollars to pay for broker services.
-   * @param date        that the stock is going to be bought.
-   * @param type        of price the shares will be bought at (i.e. open, close, high, low)
-   * @param investment  amount in dollars to use for buying stocks.
+   * @param commision  amount in dollars to pay for broker services.
+   * @param date       that the stock is going to be bought.
+   * @param type       of price the shares will be bought at (i.e. open, close, high, low)
+   * @param investment amount in dollars to use for buying stocks.
    */
   void monetaryTransaction(double commision, String date, String type, double investment) {
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
@@ -185,11 +179,12 @@ class Stock {
   }
 
   /**
+   * Updates the transaction of the stocks log with successful transactions made.
    *
-   * @param date        that the stock is going to be bought.
-   * @param commision   amount in dollars to pay for broker services.
-   * @param price       amount in dollar for each of the shares bought in the transaction.
-   * @param shares      to be boughtfor the company.
+   * @param date      that the stock is going to be bought.
+   * @param commision amount in dollars to pay for broker services.
+   * @param price     amount in dollar for each of the shares bought in the transaction.
+   * @param shares    to be boughtfor the company.
    */
   void updateLog(String date, double commision, double price, int shares) {
     List my_stock = new ArrayList();
@@ -204,10 +199,10 @@ class Stock {
     } else {
       double cost = Double.parseDouble(this.log.get(date).get(0)) + price * shares; // adjusted cost
       my_stock.add(0, String.valueOf(commision + cost)); // adjusted cost
-      my_stock.add(1, String.valueOf(Integer.parseInt(this.log.get(date).get(1)) +
-              shares)); // adjusted shares
-      my_stock.add(2, String.valueOf(Double.parseDouble(this.log.get(date).get(2)) +
-              commision)); // adjusted commission
+      my_stock.add(1, String.valueOf(Integer.parseInt(this.log.get(date).get(1))
+              + shares)); // adjusted shares
+      my_stock.add(2, String.valueOf(Double.parseDouble(this.log.get(date).get(2))
+              + commision)); // adjusted commission
       my_stock.add(3, String.valueOf(price)); // price for same day is the same
       this.log.put(date, my_stock);
     }
@@ -231,9 +226,9 @@ class Stock {
     String save_path = "portfolios/" + portfolio + "/" + this.getTicker() + ".csv";
     BufferedWriter write_stock = null;
     try {
-        write_stock = new BufferedWriter(new FileWriter(save_path));
-        write_stock.write(stock_information);
-        write_stock.close();
+      write_stock = new BufferedWriter(new FileWriter(save_path));
+      write_stock.write(stock_information);
+      write_stock.close();
     } catch (IOException e) {
       e.printStackTrace();
     }

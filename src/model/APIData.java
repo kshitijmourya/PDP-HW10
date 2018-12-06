@@ -1,6 +1,5 @@
 package model;
 
-
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -19,7 +18,6 @@ import java.util.Map;
  */
 class APIData {
   private Map<String, String> nameToCode;
-  private Map<String, Double> prices;
   private String apiKey2 = "SSO4MPHRUSM6YMEB";
   private String apiKey = "UISBJFEXNUUOZ3II";
   private String apiKey3 = "3KC45X2HPAQ6X05J";
@@ -31,7 +29,6 @@ class APIData {
    */
   APIData() {
     this.nameToCode = new HashMap<>();
-    this.prices = new HashMap<>();
   }
 
   /**
@@ -54,7 +51,7 @@ class APIData {
     try {
       url = new URL("https://www.alphavantage.co/query?function=SYMBOL_SEARCH&"
               + "keywords=" + companyName
-              + "&apikey=" + apiKey
+              + "&apikey=" + apiKey3
               + "&datatype=csv");
     } catch (MalformedURLException e) {
       throw new RuntimeException("the alphavantage API has either changed or "
@@ -93,7 +90,7 @@ class APIData {
               + ".co/query?function=TIME_SERIES_DAILY"
               + "&outputsize=full"
               + "&symbol"
-              + "=" + tickrCode + "&apikey=" + apiKey3
+              + "=" + tickrCode + "&apikey=" + apiKey2
               + "&datatype=csv");
     } catch (MalformedURLException e) {
       throw new RuntimeException("the alphavantage API has either changed or "
@@ -108,8 +105,6 @@ class APIData {
     } catch (IOException e) {
       e.printStackTrace();
     }
-
-    Thread.sleep(20000);
   }
 
   /**
