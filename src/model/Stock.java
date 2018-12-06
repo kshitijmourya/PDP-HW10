@@ -179,6 +179,8 @@ class Stock {
   }
 
   /**
+   * Updates the transaction of the stocks log with successful transactions made.
+   *
    * @param date      that the stock is going to be bought.
    * @param commision amount in dollars to pay for broker services.
    * @param price     amount in dollar for each of the shares bought in the transaction.
@@ -197,10 +199,10 @@ class Stock {
     } else {
       double cost = Double.parseDouble(this.log.get(date).get(0)) + price * shares; // adjusted cost
       my_stock.add(0, String.valueOf(commision + cost)); // adjusted cost
-      my_stock.add(1, String.valueOf(Integer.parseInt(this.log.get(date).get(1)) +
-              shares)); // adjusted shares
-      my_stock.add(2, String.valueOf(Double.parseDouble(this.log.get(date).get(2)) +
-              commision)); // adjusted commission
+      my_stock.add(1, String.valueOf(Integer.parseInt(this.log.get(date).get(1))
+              + shares)); // adjusted shares
+      my_stock.add(2, String.valueOf(Double.parseDouble(this.log.get(date).get(2))
+              + commision)); // adjusted commission
       my_stock.add(3, String.valueOf(price)); // price for same day is the same
       this.log.put(date, my_stock);
     }
