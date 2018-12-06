@@ -6,6 +6,23 @@ Team:
 Michael Lopez and Kshitij Mourya
 
 Summary of design changes:
+Release 1.3:
+
+There were no major overall design changes in the layout of the design pattern. However there were many key changes within the model itself and the 
+addition of a GUI in this release. 
+
+Before, whenever the model was asked to purchase stock, it was required to ask the online API everytime and required a slowdown in processing time to 
+keep the API from locking the API key access to the infomrtion. Now, the model will save the infomation obtained from the API for each stock in 
+separate csv files and use these files to perform all previously defined features from then on. This allows for shorter run times after the initial
+buying of a stock. With this save feature also came the framework to add a feature to save the account portfolios. Now before the user buys stock, 
+the state of the account, its portfolios, and all retained stocks are saved in the users working directory in autosave fashion with no need for input 
+from the user. This new feature goes hand in hand with another new feature to load a previous state of the account from a save state. 
+
+The GUI is the exact same as the previous view layout now in a popup window. There was no change in the general layout of either the previous view, or 
+the way it is seen in the GUI. The program will first ask which interface the user prefers and then instantiate the chosen one for the user.
+
+Release 1.2:
+
 There were no major changes in design. The biggest change was the moved of the output and input methods from the controller to the view; this was done 
 in an attempt to have a more traditional MVC design. Other changes were made primarily in the model implementation and method signatures. To compensate
 for the resitrictions from the API (5 calls per minute) we imposed Thread.sleep() after or before calls to the API to slow the process of buying stocks
@@ -23,6 +40,8 @@ The current features are:
 1) Allows user to create portfolios and buy stocks in them.
 2) Examine the portfolios.
 3) Get the total cost and current values of the stocks/portfolios.
+4) Apply and save specific dollar cost averageing investment strategies.
+5) Save and load account, portfolio, stock information to and from file.
 
 Our application takes input in text interface format. It is similar to the person calling a callcentre. 
 The response a user gives is limited to the conditions mentioned. Generally that is typing in the appropriate number as required.
@@ -79,8 +98,6 @@ Same goes for system date.
 
 Please do check the class diagram as well.
 
-
-NOTE: Implementation uses Thread.sleep to work with limited API Calls. Expect Slow run time. 
 
 
 

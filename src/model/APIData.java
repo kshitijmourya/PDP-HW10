@@ -1,9 +1,7 @@
 package model;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -12,10 +10,6 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -59,7 +53,7 @@ class APIData {
     try {
       url = new URL("https://www.alphavantage.co/query?function=SYMBOL_SEARCH&"
               + "keywords=" + companyName
-              + "&apikey=" + apiKey
+              + "&apikey=" + apiKey3
               + "&datatype=csv");
     } catch (MalformedURLException e) {
       throw new RuntimeException("the alphavantage API has either changed or "
@@ -91,7 +85,6 @@ class APIData {
    * Saves csv file obtained from the url stock api.
    *
    * @param tickrCode for the company to buy stocks of.
-   * @throws InterruptedException
    */
   private void saveStock(String tickrCode) throws InterruptedException {
     try {
@@ -99,7 +92,7 @@ class APIData {
               + ".co/query?function=TIME_SERIES_DAILY"
               + "&outputsize=full"
               + "&symbol"
-              + "=" + tickrCode + "&apikey=" + apiKey3
+              + "=" + tickrCode + "&apikey=" + apiKey2
               + "&datatype=csv");
     } catch (MalformedURLException e) {
       throw new RuntimeException("the alphavantage API has either changed or "
@@ -109,12 +102,11 @@ class APIData {
     InputStream in_2 = null;
     try {
       in_2 = url.openStream();
-      Files.copy(in_2, Paths.get("stocks", tickrCode + ".csv"), StandardCopyOption.REPLACE_EXISTING);
+      Files.copy(in_2, Paths.get("stocks", tickrCode + ".csv"),
+              StandardCopyOption.REPLACE_EXISTING);
     } catch (IOException e) {
       e.printStackTrace();
     }
-
-    Thread.sleep(20000);
   }
 
   /**
@@ -125,8 +117,6 @@ class APIData {
    * @param date      that the stocks will be bought.
    * @param type      of price the user will give to select the price point to buy at.
    * @return array of file lines for the queried stock.
-   * @throws IllegalArgumentException
-   * @throws InterruptedException
    */
   private String[] getFile(String tickrCode, String date, String type)
           throws IllegalArgumentException, InterruptedException {
@@ -167,7 +157,7 @@ class APIData {
           throws IllegalArgumentException, InterruptedException {
     Map<String, Double> res = new HashMap<>();
     String[] category = {"open", "high", "low", "close", "volume"};
-    String [] value = getFile(tickrCode, date, type);
+    String[] value = getFile(tickrCode, date, type);
 
     for (int i = 1; i < value.length; i++) {
       String[] row = value[i].split(",");
@@ -175,7 +165,7 @@ class APIData {
       if (row[0].equals(date)) {
 
         for (int j = 0; j < row.length - 1; j++) {
-          res.put(category[j], Double.parseDouble(row[j+1]));
+          res.put(category[j], Double.parseDouble(row[j + 1]));
         }
       }
     }
