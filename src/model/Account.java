@@ -120,8 +120,8 @@ public class Account implements UserAccount {
   /**
    * Buys a particular stock and adds it to the specified portfolio at the users command. If the
    * stock does not already exist in the portfolio, it will add it. If the stock does exist in the
-   * portfolio, then it will add the shares to the stock within the portfolio. Automatically saves
-   *    * the state of the account after buying the stock.
+   * portfolio, then it will add the shares to the stock within the portfolio. Automatically saves *
+   * the state of the account after buying the stock.
    *
    * @param commision  amount charges in Dollard and Cents to make the transaction.
    * @param ticker     identifier for company to buy stock from. Can be company name or ticker
@@ -133,7 +133,7 @@ public class Account implements UserAccount {
    * @param portfolio  to add the acquired stock to.
    */
   private void buyMonetaryStock(double commision, String ticker, String date, String type,
-                        double investment, String portfolio) {
+                                double investment, String portfolio) {
     this.saveAccount();
 
     boolean exists = false;
@@ -352,14 +352,14 @@ public class Account implements UserAccount {
       for (String date : s.getLogs().keySet()) {
         portfolio_information += "\n\t" + s.getTicker() + "\n";
 
-          if (formatter.parse(date).after(formatter.parse(start))
-                  && formatter.parse(date).before(formatter.parse(end))) {
+        if (formatter.parse(date).after(formatter.parse(start))
+                && formatter.parse(date).before(formatter.parse(end))) {
 
-            value_difference += end_price * Integer.parseInt(s.getLogs().get(date).get(1))
-                    - Double.parseDouble(s.getLogs().get(date).get(0));
+          value_difference += end_price * Integer.parseInt(s.getLogs().get(date).get(1))
+                  - Double.parseDouble(s.getLogs().get(date).get(0));
 
-            portfolio_information += "\t\t" + "Current Profit: " + value_difference + "\n";
-          }
+          portfolio_information += "\t\t" + "Current Profit: " + value_difference + "\n";
+        }
       }
       total_value += value_difference;
     }
@@ -412,19 +412,18 @@ public class Account implements UserAccount {
 
     File portfolios = new File("portfolios");
 
-      File[] portfolio_dirs = portfolios.listFiles();
-      for (File f : portfolio_dirs) {
-        if (f.isDirectory()) {
-          getSaveFile(f.toString());
-        }
+    File[] portfolio_dirs = portfolios.listFiles();
+    for (File f : portfolio_dirs) {
+      if (f.isDirectory()) {
+        getSaveFile(f.toString());
       }
+    }
   }
 
   /**
    * Saves all stocks and information in current specified portfolio.
    *
    * @param portfolio to be saved.
-   * @throws IllegalArgumentException
    */
   private void getSaveFile(String portfolio)
           throws IllegalArgumentException {
@@ -440,27 +439,27 @@ public class Account implements UserAccount {
       if (f.isFile()) {
         tickr = f.toString().split("\\W")[2];
 
-      try {
-        in = new BufferedReader(new FileReader(f.toString()));
-        Stock s = new Stock(tickr);
-        String b;
+        try {
+          in = new BufferedReader(new FileReader(f.toString()));
+          Stock s = new Stock(tickr);
+          String b;
 
-        while ((b = in.readLine()) != null) {
-          String[] line_array = b.split(",");
+          while ((b = in.readLine()) != null) {
+            String[] line_array = b.split(",");
 
-          if (!line_array[0].equals("transaction date")) {
-            s.updateLog(line_array[0], Double.parseDouble(line_array[3]),
-                    Double.parseDouble(line_array[4]), Integer.parseInt(line_array[2]));
+            if (!line_array[0].equals("transaction date")) {
+              s.updateLog(line_array[0], Double.parseDouble(line_array[3]),
+                      Double.parseDouble(line_array[4]), Integer.parseInt(line_array[2]));
+            }
           }
+
+          stocks.add(s);
+
+        } catch (FileNotFoundException e) {
+
+        } catch (IOException e) {
+          e.printStackTrace();
         }
-
-        stocks.add(s);
-
-      } catch (FileNotFoundException e) {
-
-      } catch (IOException e) {
-        e.printStackTrace();
-      }
       }
     }
     this.portfolios.put(portfolio, stocks);
@@ -478,7 +477,7 @@ public class Account implements UserAccount {
    * @param weights    of investment into each stock in the portfolio.
    */
   private void saveStrategy(double commision, double investment, String portfolio,
-                    String start, String end, int interval, int... weights) {
+                            String start, String end, int interval, int... weights) {
     String save_path = "strategies/" + portfolio + ".csv";
 
     String strategy = "commission,investment amount,portfolio,start date,end date,interval,weights\n";
@@ -493,13 +492,13 @@ public class Account implements UserAccount {
 
     BufferedWriter write_strategy = null;
 
-      try {
-        write_strategy = new BufferedWriter(new FileWriter(save_path));
-        write_strategy.write(strategy);
-        write_strategy.close();
-      } catch (IOException e) {
-        e.printStackTrace();
-      }
+    try {
+      write_strategy = new BufferedWriter(new FileWriter(save_path));
+      write_strategy.write(strategy);
+      write_strategy.close();
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
   }
 
   /**

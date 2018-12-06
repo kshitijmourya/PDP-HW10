@@ -49,7 +49,7 @@ public class AccountTest {
   @Test
   public void test2() throws InterruptedException, ParseException {
     testTrade = new Account();
-    testTrade.
+
     testTrade.addPortfolio("Technology");
 
     testTrade.buyStock(20.00,"AMZN", "2018-11-08", "open", 10, "Technology");

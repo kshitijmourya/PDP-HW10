@@ -160,4 +160,9 @@ public class AppController2 implements IAppController {
     return model.getStockNumberInPortfolio(portfolioName);
   }
 
+  public void load() {
+    model.loadAccount();
+    view.display("Files loaded");
+  }
+
 }
